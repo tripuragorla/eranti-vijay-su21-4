@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="center mt-5"><h1>Welcome to smart Foodie</h1></div>
+
+<div class="center mt-5">
+    <h4><p style="margin-left: 30px;">Smart Foodie!!<br> Estimates accurately and efficiently so you never miss a calorie you intake!</p>
+    </h4>
+        <div class="cssmarquee">
+        <h5>Get free updates anytime we add new features and the Updates are FREE too! So don't wait signup with US now.</h5>
+    </div>
+    <a href="{% url 'upload_page' %}" class="btn btn-info">Start Now</a>
+
+</div>
+
+<div class="center mt-5">
+    <img src="{% static 'images/home-page.jpg' %}" alt="foodie" width="600px" height="300px" class="rounded" >
+</div>
+
+{% endblock %}

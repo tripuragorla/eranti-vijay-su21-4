@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="center">
+    <h1>Upload Image</h1>
+</div>
+<hr>
+
+<div class="row margin-left">
+    <div class="col-md-3">
+        <form method="POST" enctype="multipart/form-data" role="form">{% csrf_token %}
+
+            {{ form|crispy }}
+            <p><button type="submit" class="btn btn-success">Upload</button></p>
+        </form>
+        {% if object.image %}
+        <button class="btn btn-info" id="result-btn">Show Result</button>
+        <p><label>Current imgae:</label></p>
+        <div class="form-group">
+            <img src="{{object.image.url}}" alt="foodie" width="400px" height="300px" class="rounded">
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-5 margin-left-110" id="result-table" style="display: none;">
+
+        <h1>Result</h1>
+        <table>
+            <tr>
+                <th></th>
+                <th>Carbohydrates (Grams)</th>
+                <th>Fat (Grams)</th>
+                <th>Calories</th>
+            </tr>
+            <tr>
+                <th>Item-1</th>
+                <td>6.9</td>
+                <td>5.1</td>
+                <td>110</td>
+            </tr>
+            <tr>
+                <th>Item-2</th>
+                <td>6.1</td>
+                <td>4.1</td>
+                <td>150</td>
+            </tr>
+            <tr>
+                <th>Item-3</th>
+                <td>6.3</td>
+                <td>5.7</td>
+                <td>220</td>
+            </tr>
+            <tr>
+                <th>Item-4</th>
+                <td>4.9</td>
+                <td>6.1</td>
+                <td>300</td>
+            </tr>
+            <tr>
+                <th>Item-5</th>
+                <td>5.7</td>
+                <td>5.2</td>
+                <td>230</td>
+            </tr>
+            <tr>
+                <th>Item-6</th>
+                <td>6.7</td>
+                <td>5.0</td>
+                <td>310</td>
+            </tr>
+            <tr>
+                <th>Item-7</th>
+                <td>6.3</td>
+                <td>5.5</td>
+                <td>160</td>
+            </tr>
+            
+        </table>
+
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+    let val=true;
+    $("#result-btn").click(function () {
+        if (val){
+            $("#result-table").show();
+            val=false;
+            $("#result-btn").text("Hide Result")
+        }else{
+            $("#result-table").hide();
+            val=true;
+            $("#result-btn").text("Show Result")
+        }
+        
+        
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+.center {
+    text-align: center;
+  }
+.margin-left{
+  margin-left: 30px !important;
+}
+.margin-left-110{
+  margin-left: 350px !important;
+}
+body {
+    background-color: rgb(167, 211, 170) !important;
+    
+}
+.user_card {
+  width: 350px;
+  margin-top: 60px;
+  margin-bottom: auto;
+  background: #b4cac9;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
+
+}
+.form_container {
+  margin-top: 20px;
+}
+#form-title {
+  color: #fff;
+
+}
+
+.login_btn {
+  width: 100%;
+  background: #33ccff !important;
+  color: white !important;
+}
+
+.login_btn:focus {
+  box-shadow: none !important;
+  outline: 0px !important;
+}
+
+.login_container {
+  padding: 0 2rem;
+}
+
+.input-group-text {
+  background: #f7ba5b !important;
+  color: white !important;
+  border: 0 !important;
+  border-radius: 0.25rem 0 0 0.25rem !important;
+}
+
+.input_user,
+.input_pass:focus {
+  box-shadow: none !important;
+  outline: 0px !important;
+}
+
+#messages {
+ 
+  padding: 10px;
+  margin-top: 10px;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+li p {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+li {
+  float: left;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.cssmarquee {
+  height: 50px;  
+  overflow: hidden;
+  position: relative;
+ }
+ .cssmarquee h5 {
+  font-size: 1.5em;
+  color: rgb(85, 161, 50);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  line-height: 50px;
+  text-align: center;    
+  transform:translateX(100%);
+  animation: cssmarquee 30s linear infinite;
+ }
+   
+ @keyframes cssmarquee {
+  0%   { 
+  transform: translateX(100%);       
+  }
+  100% { 
+   
+  transform: translateX(-100%); 
+  }
+ }
