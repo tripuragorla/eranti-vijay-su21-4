@@ -31,6 +31,8 @@ def upload_page(request):
                 obj.save()
             context['object'] = obj
             context['form'] = ImageUploadForm()
+            context['results'] = [(6.9, 5.1, 110), (6.1, 4.1, 150), (6.3, 5.7, 220), (4.9, 6.1, 300), (5.7, 5.2, 230),
+                                  (6.7, 5.0, 310), (6.3, 5.5, 160)]
             return render(request, "image_upload/upload_page.html", context)
         else:
             context.update({"form": form, "errors": form.errors})
