@@ -25,7 +25,7 @@
     </div>
 
     <div class="col-md-5 margin-left-110" id="result-table" style="display: none;">
-        <h1>Result</h1>
+        <h1>Result: {{ prediction }}</h1>
         <table>
             <tr>
                 <th></th>
@@ -33,7 +33,7 @@
                 <th>Fat (Grams)</th>
                 <th>Calories</th>
             </tr>
-            {% for row in results %}
+            {% for row in nutritional %}
                 <tr>
                     <th>Item-{{ forloop.counter }}</th>
                     {% for col in row %}
