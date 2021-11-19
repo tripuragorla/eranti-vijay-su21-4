@@ -25,23 +25,32 @@
     </div>
 
     <div class="col-md-5 margin-left-110" id="result-table" style="display: none;">
-        <h1>Result: {{ prediction }}</h1>
-        <table>
-            <tr>
-                <th></th>
-                <th>Carbohydrates (Grams)</th>
-                <th>Fat (Grams)</th>
-                <th>Calories</th>
-            </tr>
-            {% for row in nutritional %}
+        {% for p in prediction %}
+            <h1>{{ p.title }}</h1>
+            <h3>Nutritional Facts</h3>
+            <table>
                 <tr>
-                    <th>Item-{{ forloop.counter }}</th>
-                    {% for col in row %}
-                        <td>{{ col }}</td>
-                    {% endfor %}
+                    <th>Ingredient</th>
+                    <th>Carbohydrates (Grams)</th>
+                    <th>Fat (Grams)</th>
+                    <th>Calories</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for i in p.ingredients %}
+                    <tr>
+                        <td>{{ i.ingredient }}</td>
+                        <td>{{ i.carb }}</td>
+                        <td>{{ i.fat }}</td>
+                        <td>{{ i.cal }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <h3>Recipe</h3>
+            <ol>
+                {% for r in p.recipe %}
+                    <li style="float: none">{{ r }}</li>
+                {% endfor %}
+            </ol>
+        {% endfor %}
     </div>
 </div>
 

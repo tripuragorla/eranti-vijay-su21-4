@@ -1,27 +1,92 @@
-import numpy as np
+import pickle
+import sys
+import warnings
+from random import randint
+
+import torch
+from PIL import Image
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from torchvision import transforms
 
+from inversecooking.args import get_parser
+from inversecooking.model import get_model
+from inversecooking.utils.output_utils import prepare_output
 from .forms import ImageUploadForm
 from .models import UploadedImage
 
-model = load_model("InceptionV3_sampled.hdf5", compile=False)
-labels = ["Bibimbap", "Cheesecake", "Chicken Wings", "Cup Cakes", "French Fries", "Garlic Bread", "Hamburger",
-          "Ice Cream", "Omelette", "Pizza", "Ramen", "Samosa", "Spaghetti Carbonara", "Strawberry Shortcake", "Waffles"]
+print("Initializing model...", end="")
+warnings.filterwarnings("ignore")
+
+use_gpu = True
+device = torch.device("cuda" if torch.cuda.is_available() and use_gpu else "cpu")
+map_loc = None if torch.cuda.is_available() and use_gpu else "cpu"
+
+ingrs_vocab = pickle.load(open("ingr_vocab.pkl", "rb"))
+vocab = pickle.load(open("instr_vocab.pkl", "rb"))
+ingr_vocab_size = len(ingrs_vocab)
+instrs_vocab_size = len(vocab)
+output_dim = instrs_vocab_size
+
+sys.argv = [""]
+del sys
+args = get_parser()
+args.maxseqlen = 15
+args.ingrs_only = False
+
+model = get_model(args, ingr_vocab_size, instrs_vocab_size)
+model.load_state_dict(torch.load("modelbest.ckpt", map_location=map_loc))
+model.to(device)
+model.eval()
+model.ingrs_only = False
+model.recipe_only = False
+
+transf_list_batch = [transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))]
+to_input_transf = transforms.Compose(transf_list_batch)
+
+greedy = [True, False, False, False]
+beam = [-1, -1, -1, -1]
+temperature = 1.0
+numgens = 1  # len(greedy)
+print("done!")
 
 
 def predict(path):
-    img = image.load_img(path, target_size=(224, 224))
-    img = image.img_to_array(img)
-    img = np.expand_dims(img, axis=0)
-    img = img / 255.
-    pred = model.predict(img)
-    index = np.argmax(pred)
-    label = labels[index]
-    print("path = " + path + ", label = " + label)
-    return label
+    print("Running prediction on " + path + "...", end="")
+    preds = []
+
+    image = Image.open(path).convert("RGB")
+
+    transf_list = [transforms.Resize(256), transforms.CenterCrop(224)]
+    transform = transforms.Compose(transf_list)
+
+    image_transf = transform(image)
+    image_tensor = to_input_transf(image_transf).unsqueeze(0).to(device)
+
+    for i in range(numgens):
+        with torch.no_grad():
+            outputs = model.sample(image_tensor, greedy=greedy[i],
+                                   temperature=temperature, beam=beam[i], true_ingrs=None)
+
+        ingr_ids = outputs["ingr_ids"].cpu().numpy()
+        recipe_ids = outputs["recipe_ids"].cpu().numpy()
+        outs, valid = prepare_output(recipe_ids[0], ingr_ids[0], ingrs_vocab, vocab)
+
+        preds.append({
+            "title": outs["title"].title(),
+            "ingredients": list(map(lambda ingredient: {
+                "ingredient": ingredient.replace("_", " ").title(),
+                "carb": randint(3, 30),
+                "fat": randint(6, 60),
+                "cal": randint(90, 900)
+            }, outs["ingrs"])),
+            "recipe": outs["recipe"],
+            "is_valid": valid["is_valid"]
+        })
+
+    print("done!")
+    print("Predictions: " + str(preds))
+    return preds
 
 
 def main_view(request):
@@ -55,8 +120,6 @@ def upload_page(request):
             context["object"] = obj
             context["form"] = ImageUploadForm()
             context["prediction"] = predict(obj.image.path)
-            context["nutritional"] = [(6.9, 5.1, 110), (6.1, 4.1, 150), (6.3, 5.7, 220), (4.9, 6.1, 300),
-                                      (5.7, 5.2, 230), (6.7, 5.0, 310), (6.3, 5.5, 160)]
             return render(request, "image_upload/upload_page.html", context)
         else:
             context.update({"form": form, "errors": form.errors})
