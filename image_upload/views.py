@@ -72,14 +72,23 @@ def predict(path):
         recipe_ids = outputs["recipe_ids"].cpu().numpy()
         outs, valid = prepare_output(recipe_ids[0], ingr_ids[0], ingrs_vocab, vocab)
 
+        ingredients = list(map(lambda ingredient: {
+            "ingredient": ingredient.replace("_", " ").title(),
+            "carb": randint(3, 30),
+            "fat": randint(6, 60),
+            "cal": randint(90, 900)
+        }, outs["ingrs"]))
+
+        total = {
+            "carb": sum([i["carb"] for i in ingredients]),
+            "fat": sum([i["fat"] for i in ingredients]),
+            "cal": sum([i["cal"] for i in ingredients])
+        }
+
         preds.append({
             "title": outs["title"].title(),
-            "ingredients": list(map(lambda ingredient: {
-                "ingredient": ingredient.replace("_", " ").title(),
-                "carb": randint(3, 30),
-                "fat": randint(6, 60),
-                "cal": randint(90, 900)
-            }, outs["ingrs"])),
+            "ingredients": ingredients,
+            "total": total,
             "recipe": outs["recipe"],
             "is_valid": valid["is_valid"]
         })
