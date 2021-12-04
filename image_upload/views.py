@@ -1,3 +1,4 @@
+import csv
 import pickle
 import sys
 import warnings
@@ -15,7 +16,22 @@ from inversecooking.utils.output_utils import prepare_output
 from .forms import ImageUploadForm
 from .models import UploadedImage
 
-print("Initializing model...", end="")
+print("Initializing nutritional facts...", end="")
+nutritional_facts = {}
+with open("SmartFoodie_NutritionalFacts.csv", "rt") as f:
+    reader = csv.DictReader(f)
+    for fact in reader:
+        ingredient = fact["ingredient"].title()
+        fact = {
+            "ingredient": ingredient,
+            "carb": float(fact["carb"]),
+            "fat": float(fact["fat"]),
+            "cal": float(fact["cal"])
+        }
+        nutritional_facts[ingredient] = fact
+print("done!")
+
+print("Initializing nutritional model...", end="")
 warnings.filterwarnings("ignore")
 
 use_gpu = True
@@ -51,7 +67,27 @@ numgens = 1  # len(greedy)
 print("done!")
 
 
-def predict(path):
+def random(a: float, b: float):
+    return randint(int(a), int(b)) + (randint(0, 9) / 10)
+
+
+def retrieve(ingredient: str):
+    ingredient = ingredient.replace("_", " ").title()
+    fact = nutritional_facts.get(ingredient)
+    if fact is None:
+        lower = nutritional_facts["1Q"]
+        upper = nutritional_facts["3Q"]
+        fact = {
+            "ingredient": ingredient,
+            "carb": random(lower["carb"], upper["carb"]),
+            "fat": random(lower["fat"], upper["fat"]),
+            "cal": random(lower["cal"], upper["cal"])
+        }
+        nutritional_facts[ingredient] = fact
+    return fact
+
+
+def predict(path: str):
     print("Running prediction on " + path + "...", end="")
     preds = []
 
@@ -72,17 +108,12 @@ def predict(path):
         recipe_ids = outputs["recipe_ids"].cpu().numpy()
         outs, valid = prepare_output(recipe_ids[0], ingr_ids[0], ingrs_vocab, vocab)
 
-        ingredients = list(map(lambda ingredient: {
-            "ingredient": ingredient.replace("_", " ").title(),
-            "carb": randint(3, 30),
-            "fat": randint(6, 60),
-            "cal": randint(90, 900)
-        }, outs["ingrs"]))
+        ingredients = list(map(retrieve, outs["ingrs"]))
 
         total = {
-            "carb": sum([i["carb"] for i in ingredients]),
-            "fat": sum([i["fat"] for i in ingredients]),
-            "cal": sum([i["cal"] for i in ingredients])
+            "carb": round(sum([i["carb"] for i in ingredients]), 2),
+            "fat": round(sum([i["fat"] for i in ingredients]), 2),
+            "cal": round(sum([i["cal"] for i in ingredients]), 2)
         }
 
         preds.append({
