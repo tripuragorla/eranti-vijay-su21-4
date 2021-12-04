@@ -1,4 +1,7 @@
-# eranti-vijay-su21-4 - SmartFoodie
+# SmartFoodie
+
+## Advisor
+* Vijay Eranti
 
 ## Team
 * Jimmy Liang
